@@ -9,107 +9,95 @@ document.addEventListener("DOMContentLoaded", function () {
         tasks = []
 
 
-    console.log(localStorage.getItem("tasks"));
-    if (localStorage.getItem("tasks")){
-        const tasks = JSON.parse(localStorage.getItem("tasks"))
-
-        console.log(tasks);
-        tasks.forEach(task => {
-            let liElement = document.createElement('li')
-            liElement.classList.add('liElement')
-            liElement.innerHTML = `
-        <span>${task}</span>
-        <button class="editButton">Edit</button>
-        <button class="deleteButton">X</button>
-        `
-            list.append(liElement)
-        })
-    }
-
-
-
-
-
-
     addButton.addEventListener('click', () => {
         createTask(taskInput.value)
-        deleteTask()
-        editTask()
     })
 
     const createTask = (text) => {
-        tasks.push(text)
-        localStorage.setItem("tasks", JSON.stringify(tasks))
 
-        let liElement = document.createElement('li')
-        liElement.classList.add('liElement')
-        liElement.innerHTML = `
-        <span>${text}</span>
-           <button class="editButton">Edit</button>
-            <button class="deleteButton">X</button>
-    `
-        list.append(liElement)
-    }
+        if (tasks.some((task) => task === text)) {
 
+            return alert('This task alreary exists!')
 
-    const deleteTask = () => {
+        } else {
+            /*--------------------------------------------------------------*/
+            /* Creating <li> element START
+            ----------------------------------------------------------------*/
 
-        const deleteButtons = document.querySelectorAll('.deleteButton')
+            tasks.push(text)
 
-        deleteButtons.forEach(deleteButton => {
-            deleteButton.addEventListener('click', function () {
+            let liElement = document.createElement('li')
+            liElement.innerHTML = `
+                <input type="checkbox">
+                <span>${text}</span>
+                <button class="editButton">Edit</button>
+                <button class="deleteButton">X</button>
+            `
+            list.append(liElement)
 
-                const taskText = this.parentElement.querySelector('span').innerText
-                const newTasks = tasks.filter(task => task !== taskText)
-                localStorage.setItem("tasks", newTasks)
-                console.log(localStorage.getItem("tasks"));
+            /*--------------------------------------------------------------*/
+            /* Creating <li> element END
+            ----------------------------------------------------------------*/
 
-
-                this.parentElement.remove()
+            /*--------------------------------------------------------------*/
+            /* Delete Functionality START
+            ----------------------------------------------------------------*/
+            
+            const deleteBtn = liElement.querySelector('.deleteButton')
+            deleteBtn.addEventListener('click', function () {
+                const i = tasks.indexOf(text)
+                tasks.splice(i, 1)
+                localStorage.setItem("tasks", JSON.stringify(tasks))
+                liElement.remove()
             })
-        })
-    }
 
-    const editTask = () => {
-        const editButtons = document.querySelectorAll('.editButton')
-        editButtons.forEach(editButton => {
-            editButton.addEventListener('click', function () {
+            /*--------------------------------------------------------------*/
+            /* Delete Functionality END
+            ----------------------------------------------------------------*/
 
-                const parent = this.parentElement;
-
+            /*--------------------------------------------------------------*/
+            /* Edit Functionality START
+            ----------------------------------------------------------------*/
+            
+            const editBtn = liElement.querySelector('.editButton')
+            editBtn.addEventListener('click', function () {
                 if (this.innerText === "Edit") {
                     this.innerText = "Done"
 
-                    const task = parent.querySelector('span')
-                    const taskText = task.innerText
+                    const task = liElement.querySelector('span'),
+                        taskText = task.innerText
 
                     task.remove()
 
                     const newInput = document.createElement('input')
                     newInput.value = taskText
-                    parent.prepend(newInput)
+                    liElement.prepend(newInput)
 
                 } else {
                     this.innerText = "Edit"
 
-                    const newInput = parent.querySelector('input')
-                    const newtaskText = newInput.value
+                    const newInput = liElement.querySelector('input'),
+                        newtaskText = newInput.value,
+                        index = tasks.indexOf(text)
+
+                    tasks.splice(index, 1, newtaskText)
+                    console.log(tasks);
+                    localStorage.setItem("tasks", JSON.stringify(tasks))
 
                     newInput.remove()
 
                     const newTask = document.createElement('span')
                     newTask.innerText = newtaskText
-                    parent.prepend(newTask)
+                    liElement.prepend(newTask)
 
                 }
-
             })
-        })
+
+            /*--------------------------------------------------------------*/
+            /* Edit Functionality END
+            ----------------------------------------------------------------*/
+        }
     }
-
-
-
-  
 })
 
 
